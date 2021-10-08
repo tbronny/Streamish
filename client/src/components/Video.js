@@ -1,4 +1,5 @@
 import React from "react"
+import { Link } from "react-router-dom"
 import { Card, CardBody } from "reactstrap"
 
 const Video = ({ video }) => {
@@ -18,13 +19,23 @@ const Video = ({ video }) => {
                 />
 
                 <p>
-                    <strong>{video.title}</strong>
+                    <Link to={`/videos/${video.id}`}>
+                        <strong>{video.title}</strong>
+                    </Link>
                 </p>
+
                 <p>{video.description}</p>
                 <p>
                     <strong>Comments:</strong>{" "}
-                    {video.comments.map((comment) => {
-                        return <p>{comment.message}</p>
+                    {video.comments?.map((comment) => {
+                        return (
+                            <p>
+                                <b>
+                                    <i>{comment.userProfile.name}</i>
+                                </b>
+                                : {comment.message}
+                            </p>
+                        )
                     })}
                 </p>
             </CardBody>
