@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Streamish.Repositories;
 using Streamish.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Streamish.Controllers
 {
@@ -9,22 +10,22 @@ namespace Streamish.Controllers
     [ApiController]
     public class UserProfileController : ControllerBase
     {
-        private readonly IUserProfileRepository _userRepo;
+        private readonly IUserProfileRepository _userProfileRepository;
         public UserProfileController(IUserProfileRepository userProfileRepository)
         {
-            _userRepo = userProfileRepository;
+            _userProfileRepository = userProfileRepository;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_userRepo.GetAll());
+            return Ok(_userProfileRepository.GetAll());
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var user = _userRepo.GetById(id);
+            var user = _userProfileRepository.GetById(id);
             if (user == null)
             {
                 return NotFound();
@@ -32,10 +33,21 @@ namespace Streamish.Controllers
             return Ok(user);
         }
 
+        [HttpGet("{firebaseUserId}")]
+        public IActionResult GetByFirebaseUserId(string firebaseUserId)
+        {
+            var userProfile = _userProfileRepository.GetByFirebaseUserId(firebaseUserId);
+            if (userProfile == null)
+            {
+                return NotFound();
+            }
+            return Ok(userProfile);
+        }
+
         [HttpPost]
         public IActionResult Post(UserProfile user)
         {
-            _userRepo.Add(user);
+            _userProfileRepository.Add(user);
             return CreatedAtAction("Get", new { id = user.Id }, user);
         }
 
@@ -47,14 +59,14 @@ namespace Streamish.Controllers
                 return BadRequest();
             }
 
-            _userRepo.Update(user);
+            _userProfileRepository.Update(user);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            _userRepo.Delete(id);
+            _userProfileRepository.Delete(id);
             return NoContent();
         }
     }

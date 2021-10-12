@@ -19,7 +19,7 @@ namespace Streamish.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        SELECT Id, Name, Email, ImageUrl, DateCreated
+                        SELECT Id, [FireBaseUserId], Name, Email, ImageUrl, DateCreated
                         FROM UserProfile
                         ORDER BY DateCreated
                     ";
@@ -32,6 +32,7 @@ namespace Streamish.Repositories
                         users.Add(new UserProfile()
                         {
                             Id = DbUtils.GetInt(reader, "Id"),
+                            FirebaseUserId = DbUtils.GetString(reader, "FirebaseUserId"),
                             Name = DbUtils.GetString(reader, "Name"),
                             Email = DbUtils.GetString(reader, "Email"),
                             ImageUrl = DbUtils.GetString(reader, "ImageUrl"),
@@ -54,7 +55,7 @@ namespace Streamish.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                          SELECT Id, Name, Email, ImageUrl, DateCreated
+                          SELECT Id, [FireBaseUserId], Name, Email, ImageUrl, DateCreated
                             FROM UserProfile
                            WHERE Id = @Id";
 
@@ -68,6 +69,7 @@ namespace Streamish.Repositories
                         user = new UserProfile()
                         {
                             Id = DbUtils.GetInt(reader, "Id"),
+                            FirebaseUserId = DbUtils.GetString(reader, "FirebaseUserId"),
                             Name = DbUtils.GetString(reader, "Name"),
                             Email = DbUtils.GetString(reader, "Email"),
                             ImageUrl = DbUtils.GetString(reader, "ImageUrl"),
@@ -78,6 +80,42 @@ namespace Streamish.Repositories
                     reader.Close();
 
                     return user;
+                }
+            }
+        }
+
+        public UserProfile GetByFirebaseUserId(string firebaseUserId)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT Id, [FireBaseUserId], Name, Email, ImageUrl, DateCreated
+                          FROM UserProfile
+                         WHERE [FirebaseUserId] = @FirebaseuserId";
+
+                    DbUtils.AddParameter(cmd, "@FirebaseUserId", firebaseUserId);
+
+                    UserProfile userProfile = null;
+
+                    var reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        userProfile = new UserProfile()
+                        {
+                            Id = DbUtils.GetInt(reader, "Id"),
+                            FirebaseUserId = DbUtils.GetString(reader, "FirebaseUserId"),
+                            Name = DbUtils.GetString(reader, "Name"),
+                            Email = DbUtils.GetString(reader, "Email"),
+                            ImageUrl = DbUtils.GetString(reader, "ImageUrl"),
+                            DateCreated = DbUtils.GetDateTime(reader, "DateCreated")
+                        };
+                    }
+                    reader.Close();
+
+                    return userProfile;
                 }
             }
         }

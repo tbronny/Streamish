@@ -1,3 +1,5 @@
+import { getToken } from "./authManager"
+
 const baseUrl = "/api/video"
 
 export const getVideo = (id) => {
